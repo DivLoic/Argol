@@ -1,0 +1,7 @@
+#!/bin/bash
+
+echo `pwd`/file.txt
+
+echo "===================="
+
+python `direname $0`./abc.py
