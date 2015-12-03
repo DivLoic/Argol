@@ -22,11 +22,16 @@ class Config(object):
         with open(HERE + FILE_CONFIG, 'r') as f:
             self.default_conf = yaml.load(f)
 
-        self.csv = pd.read_csv(HERE + csv_file)
+
+
 
     @property
     def get(self):
         return self.default_conf
+
+    @property
+    def mainKey(self):
+        return self.default_conf["primary"]
 
     @staticmethod
     def rewriteConfig(input, output):

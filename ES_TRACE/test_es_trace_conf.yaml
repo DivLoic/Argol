@@ -6,15 +6,13 @@ es_port: ${ES_PORT}
 es_index: ${ES_IDX}
 es_trace_log: ${APP}
 es_trace_out: ${APP}
-es_trace_date: yyyy--MM-mm HH:mm:ss
-es_trace_delibery: ${EMISSION}
 #
 # configuration pour le parsing des fichiers
 #
-primary: info
-secondary:
-  - userID
-  - timestamp
+key:
+  - info
+#  - userID
+#  - timestamp
 #
 # -- files:
 # -- -- nom du fichier:
@@ -27,20 +25,12 @@ secondary:
 # la création d'un fichier <file>_bcc_trc<yyyy-MM-dd>.xlsx
 files:
   users:
-    pattern: page
-    keys:
-      - id
-      - page
-      - timestamp
-      - type
-    fields:
-      - identifiant
-      - page
-      - date
-      - type
+    pattern: user
+    keys: id,page,timestamp,type
+    fields: identifiant,page,date,type
 
   clics:
-    pattern: clic
+    pattern: Clic
     keys: id,mapping,order,timestamp
     fields: identifiant,structure,ordre,date
 

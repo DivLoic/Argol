@@ -6,7 +6,8 @@ import yaml
 import unittest
 from es_trace_conf import *
 
-HERE = os.path.dirname(os.path.abspath(__file__)) + '/../'
+FILE = os.path.dirname(os.path.abspath(__file__)) + '/../'
+HERE = os.path.abspath(FILE) + '/'
 
 
 class EsTraceTestCase(unittest.TestCase):
@@ -14,7 +15,7 @@ class EsTraceTestCase(unittest.TestCase):
     def setUp(self):
         # test_checking_env
         os.environ['KYC_ES_TRACE_PARCER_LOG'] = os.getcwd()
-        self.conf = Config()
+        self.conf = Config('test_es_trace_conf.yaml')
 
     def test_conf_loader(self):
         """
@@ -22,7 +23,6 @@ class EsTraceTestCase(unittest.TestCase):
         :return:
         """
         assert type(self.conf.default_conf) is dict
-        self.assertGreater(len(self.conf.csv), 2, "Le fichier de configuration est vide.")
 
 
     def test_rewrite(self):
