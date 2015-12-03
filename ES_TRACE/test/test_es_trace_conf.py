@@ -4,7 +4,8 @@ __author__ = 'LoicMDIVAD'
 import re
 import yaml
 import unittest
-from es_trace_conf import *
+from src.es_trace_conf import *
+from src.es_trace_parcer import *
 
 FILE = os.path.dirname(os.path.abspath(__file__)) + '/../'
 HERE = os.path.abspath(FILE) + '/'

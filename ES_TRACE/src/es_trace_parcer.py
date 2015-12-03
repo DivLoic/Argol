@@ -4,6 +4,7 @@ __author__ = 'LoicMDIVAD'
 import os
 import json
 import pandas as pd
+from datetime import datetime
 from optparse import OptionParser
 from  es_trace_conf import Config
 
@@ -12,7 +13,7 @@ class Parser(object):
 
     """
 
-    def __init__(self, target, config_file='es_tarce_conf.yaml'):
+    def __init__(self, target, config_file='es_trace_conf.yaml'):
         self.conf = Config(config_file)
         self.targetfile = target
         self.target = os.path.abspath(target)
@@ -58,6 +59,11 @@ class Parser(object):
 
         return values
 
+    @property
+    def _now(self):
+        return datetime.now().strftime(self.conf.get["es_trace_date"])
+
+
     def writeCSV(self, content):
         pass
 
@@ -96,8 +102,12 @@ class Parser(object):
             dicts_containers[files].append(row)
 
         for d in dicts_containers.keys():
-            print "THIS IS THE DICT %s ---------> %s"%(d, len(dicts_containers[d]))
-            pd.DataFrame(dicts_containers[d]).to_csv('test.csv', sep=";")
+            path = self.conf.get['es_trace_delibery'] + '/'
+            out_file = self.conf.get['es_trace_out']
+            print path
+            print out_file
+            print self._now
+            pd.DataFrame(dicts_containers[d]).to_csv(path + out_file + self._now + '.csv', sep=";")
 
 
 
@@ -106,10 +116,14 @@ if __name__ == '__main__':
 
     optparser = OptionParser()
     optparser.add_option("-t", "--target",
-                         dest="target", default="es_trace_exemple.json", help="Fichier Json a convertire")
+                         dest="target", default="test/test_es_trace.json", help="Fichier Json a convertire")
     optparser.add_option("-e", "--extract",
                          dest="extract", default="FALSE", help="Extraction ou non de la tarce depuis ES")
 
     options, args = optparser.parse_args()
 
+    target = options.target
+    
     parser = Parser(options.target)
+
+

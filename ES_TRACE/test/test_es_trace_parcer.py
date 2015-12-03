@@ -2,13 +2,12 @@
 __author__ = 'LoicMDIVAD'
 
 import unittest
-from es_trace_conf import *
-from es_trace_parcer import *
-
+from src.es_trace_conf import *
+from src.es_trace_parcer import *
 
 class MyTestCase(unittest.TestCase):
     def setUp(self):
-        self.parcer = Parser('es_trace_exemple.json', 'test_es_trace_conf.yaml')
+        self.parcer = Parser('test/test_es_trace.json', 'test/test_es_trace_conf.yaml')
         self.config = self.parcer.conf.get
         self.hit = {"info": "{\"useless\": \"two\", \"query\": {\"emptytabs\": [1,2,3, {\"type\": \"dict\", "
                         "\"place\": \"in a liste\", \"level\":{\"lowerlevle\": \"ever\"}}], \"hash\": \"\", "
