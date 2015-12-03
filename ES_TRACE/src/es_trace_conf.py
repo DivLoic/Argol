@@ -18,12 +18,10 @@ class Config(object):
 
     """
 
-    def __init__(self, csv_file='es_trace_conf.csv'):
+    def __init__(self, csv_file='es_trace_conf.yaml'):
+        Config.rewriteConfig(HERE + csv_file, ".HARD_CONF.yaml")
         with open(HERE + FILE_CONFIG, 'r') as f:
             self.default_conf = yaml.load(f)
-
-
-
 
     @property
     def get(self):
@@ -70,8 +68,6 @@ class Config(object):
         except Exception as e:
             #TODO: Trover une meilleur indication pour l'absence de variable
             return '#<variable = '+variable+' absente>'
-
-
 
 
 if __name__ == '__main__':
