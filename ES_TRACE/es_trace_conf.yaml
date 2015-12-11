@@ -7,14 +7,12 @@ es_index: ${TRC_ES_IDX}
 es_trace_log: ${TRC_LOG}
 es_trace_out: ${TRC_OUT}
 es_trace_date: "%Y-%m-%d_%H:%M:%S"
-es_trace_delibery: ${EMISSION}/trace
+es_trace_delibery: ${EMISSION}
 #
 # configuration pour le parsing des fichiers
 #
-primary: info
-secondary:
-  - userID
-  - timestamp
+primary: information
+
 #
 # -- files:
 # -- -- nom du fichier:
@@ -24,33 +22,45 @@ secondary:
 # -- 2 type
 #
 # Indiquer des fichiers sous files implique
-# la création d'un fichier <file>_bcc_trc<yyyy-MM-dd>.xlsx
+# la création d'un fichier <file>_BCC_<yyyy-MM-dd>.xlsx
 files:
-  users:
-    pattern: page
+  requetes:
+    pattern: query
     keys:
-      - id
-      - page
-      - timestamp
-      - type
+      - "filtered"
+      - "type"
+      - "fuzziness"
+      - "index"
+      - "query"
+      - "timestamp"
+      - "userID"
     fields:
-      - identifiant
-      - page
-      - date
-      - type
+      - "Filtre"
+      - "Type de Personne"
+      - "Type de reqête"
+      - "Index"
+      - "Personne recherchée"
+      - "Timestamp"
+      - "Identifiant"
 
   clics:
     pattern: clic
     keys:
-      - id
-      - page
-      - timestamp
-      - type
+      - "clic"
+      - "Index"
+      - "Type"
+      - "Nom du Tiers"
+      - "ID"
+      - "timestamp"
+      - "userID"
     fields:
-      - identifiant
-      - page
-      - date
-      - type
+      - "Clic"
+      - "Index"
+      - "Type de Personne"
+      - "Nom"
+      - "Id Tiers"
+      - "Timestamp"
+      - "Identifiant"
 
 
   #information:

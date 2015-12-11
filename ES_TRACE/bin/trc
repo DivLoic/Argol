@@ -1,0 +1,51 @@
+#!/bin/bash
+
+
+usage () {
+	echo "" >&2
+	echo "usage: trc helper" >&2
+	echo "$ trc <fichier.json> [-v]" >&2
+	echo "" >&2
+	echo "Appliquez la commande sur un fichier issue de l' index de trace de l' appli BCC." >&2
+	echo "Utiliser l' option 'e' pour générer cet extract." >&2
+	echo "Les fichiers csv sont générées dans ${EMISSION}/trace  " >&2
+	echo "" >&2
+	echo "param(s) :" >&2 
+	echo "          Fichier à parcer" >&2
+	echo "" >&2
+	echo "option(s) :" >&2
+	echo "|          -e  extract from elasticsearch" >&2
+	echo "|          -v  mode verbeux" >&2
+	echo "|          -h  affiche ce super message d aide" >&2
+	echo "" >&2
+}
+
+while getopts ':evh' opt; do
+	case $opt in
+		e)
+   		  echo "Option: -${opt} Pas encore implémente."
+		  echo "Sortie du programme avec le code : 1"
+		  exit 1
+		  ;;
+		v)
+		  echo "Option: -${opt} Pas encore implémente."
+		  echo "Sortie du programme avec le code : 1"
+          VERBOSE=true
+          exit 1
+          ;;
+		h)
+          usage
+          exit 0
+          ;;
+		\?)
+		  echo "Option: -${opt} inconnue.\n" >&2
+		  usage
+		  echo "Sortie du programme avec le code : 1"
+		  exit 1
+		;;
+	esac
+done
+
+python `dirname $0`/../src/es_trace_parcer.py -t $1
+code=$?
+echo "Sortie du programme avec le code : " $code

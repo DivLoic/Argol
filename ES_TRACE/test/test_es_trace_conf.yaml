@@ -7,7 +7,7 @@ es_index: ${TRC_ES_IDX}
 es_trace_log: ${TRC_LOG}
 es_trace_out: ${TRC_OUT}
 es_trace_date: "%Y-%m-%d_%H:%M:%S"
-es_trace_delibery: ${EMISSION}/trace
+es_trace_delibery: ${EMISSION}
 #
 # configuration pour le parsing des fichiers
 #

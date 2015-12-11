@@ -8,7 +8,6 @@ import pandas as pd
 
 HERE = os.path.dirname(os.path.abspath(__file__)) + '/../'
 FILE_CONFIG = '.HARD_CONF.yaml'
-ES_TRACE_EXT = 'CSV'
 
 class Config(object):
     """
@@ -19,7 +18,8 @@ class Config(object):
     """
 
     def __init__(self, csv_file='es_trace_conf.yaml'):
-        Config.rewriteConfig(HERE + csv_file, ".HARD_CONF.yaml")
+        self.nonEnv = list()
+        self.rewriteConfig(HERE + csv_file, FILE_CONFIG)       
         with open(HERE + FILE_CONFIG, 'r') as f:
             self.default_conf = yaml.load(f)
 
@@ -31,8 +31,12 @@ class Config(object):
     def mainKey(self):
         return self.default_conf["primary"]
 
-    @staticmethod
-    def rewriteConfig(input, output):
+    @property
+    def undefined(self):
+        return (len(self.nonEnv), list(self.nonEnv))
+
+
+    def rewriteConfig(self, input, output):
         """
         fonction io, lit le fichier es_trace_conf.yaml et remplace les varibales d'environnemnt dans
         .HARD_CONF.yaml le fichier. Ce fichier est lu et chargé dans self.default_conf
@@ -48,9 +52,12 @@ class Config(object):
         for l, line in enumerate(lines_in):
             variables = re.findall("\${(.*?)\}", line)
             for var in variables:
-                lines_in[l] = lines_in[l].replace('${'+var+'}', Config.isEnv(var))
+                exist, value = Config.isEnv(var)
+                if not exist: self.nonEnv.append(var)
+                lines_in[l] = lines_in[l].replace('${'+var+'}', value)
 
-        with open(output, 'w') as output_file:
+
+        with open(HERE + output, 'w') as output_file:
             for line in lines_in:
                 output_file.write(line)
 
@@ -58,16 +65,18 @@ class Config(object):
     @staticmethod
     def isEnv(variable):
         """
-        Prend une nom de variable d'environement et renvoie sa valeur si elle est définie
-        Rencoie [String à déterminer] si la valeur n'est pas définie.
-        :param variable:
-        :return:
+        Prend un nom de variable d'environement et renvoie  un tuple
+        (exitance, valeur) de type (Boolean, String)
+        Rencvie [String à déterminer] si la valeur n'est pas définie.
+        :param variable <String>:
+        :return tuple <Boolean, String>: 
         """
         try:
-            return os.environ[variable]
+            return (True , os.environ[variable])
         except Exception as e:
             #TODO: Trover une meilleur indication pour l'absence de variable
-            return '#<variable = '+variable+' absente>'
+            return (False, '#<variable = '+variable+' absente>')
+
 
 
 if __name__ == '__main__':

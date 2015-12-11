@@ -1,2 +1,3 @@
 .HARD_CONF.yaml
 *.csv
+tmp/*
