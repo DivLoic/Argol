@@ -121,8 +121,8 @@ class Parser(object):
             try:
                 dicts_hit = Parser.dump_string(hit[self.conf.mainKey])
             except ValueError as ve:
-                #self.log.get.info("La clef { " + self.conf.mainKey +" } n'a pas été retrouvée dans un des documents")
-                #self.log.get.error(str(ve))
+                self.log.get.debug("La clef (( " + self.conf.mainKey +" )) ne présente pas un format json.")
+                self.log.get.debug(str(ve))
                 dicts_hit = {"error": "ValueError"}
             
             cells_hit = Parser.diginto(dicts_hit)
@@ -165,7 +165,6 @@ if __name__ == '__main__':
 
     parser = Parser(options.target)
 
-    parser.log.start()
     parser.log.get.info('Parsing du fichier : %s'% parser.targetfile)
 
     parser.process()

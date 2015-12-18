@@ -26,13 +26,15 @@ class TrcLogger():
 
         # Writing in file if info
         self.log = logging.getLogger("TRC")
-        self.log.setLevel(logging.INFO)
+        self.log.setLevel(logging.DEBUG)
 
         # Writing in console if warining or error
         self.console = logging.StreamHandler()
-        self.console.setLevel(logging.WARNING)
+        self.console.setLevel(logging.INFO)
         self.console.setFormatter(FORMATTER)
         self.log.addHandler(self.console)
+
+        self.start()
 
     def touch(self, path):
         with open(path, 'a') as f:
