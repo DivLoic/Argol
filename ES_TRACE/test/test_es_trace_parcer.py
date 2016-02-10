@@ -11,9 +11,8 @@ HERE = os.path.abspath(FILE) + '/'
 
 class MyTestCase(unittest.TestCase):
     def setUp(self):
-        self.parcer = Parser(HERE + 'test_es_trace.json', 'test/test_es_trace_conf.yaml')
+        self.parcer = Parser(HERE + 'test_es_trace.json', 'test/test_es_trace_conf.yaml', test=True)
         self.config = self.parcer.conf.get
-        self.parcer.log.log4test()
         self.hit = {"info": "{\"useless\": \"two\", \"query\": {\"emptytabs\": [1,2,3, {\"type\": \"dict\", "
                         "\"place\": \"in a liste\", \"level\":{\"lowerlevle\": \"ever\"}}], \"hash\": \"\", "
                         "\"order\": false, \"mapping\": false}, \"timestamp\": \"2015-01-03T00:00:00\", "
@@ -51,14 +50,14 @@ class MyTestCase(unittest.TestCase):
         primary = self.parcer.conf.get["primary"]
         assert type(self.hit["info"]) is str
         info = Parser.dump_string(self.hit["info"])
-        res = Parser.diginto(info)
+        res = Parser.dig(info)
         self.assertEquals(15,len(res))
         #print "La méthode de récupération de clefs: (diginto) est appliquée sur la clef obligatoire:",primary
         #print "Le parseur crée à partir du fichier %s, contient %i hits"%(self.parcer.targetfile,len(self.parcer.hits))
 
     def test_match_pattern(self):
         dictOfLine= Parser.dump_string(self.hit["info"])
-        keyValues = Parser.diginto(dictOfLine)
+        keyValues = Parser.dig(dictOfLine)
         self.assertEquals("users", self.parcer.matchPattern(keyValues))
         self.assertNotEquals("clics", self.parcer.matchPattern(keyValues))
 

@@ -11,15 +11,17 @@ from es_trace_conf import Config
 from es_trace_logger import TrcLogger
 
 class Parser(object):
+    """ 
+    Object principale, il cherge le json, regroupe les différents types de documents
+    Creer les dataframe associées puis les ecrit sous forme de csv après avoir modifier les
+    Entêtes. il a en propriété une Config, un TrcLogger et les hits
     """
 
-    """
-
-    def __init__(self, target, config_file='es_trace_conf.yaml'):
+    def __init__(self, target, config_file='es_trace_conf.yaml', test=False):
         self.conf = Config(config_file)
         self.targetfile = target
         self.target = os.path.abspath(target)
-        self.log = TrcLogger(self.conf.get["es_trace_log"])
+        self.log = TrcLogger(self.conf.get["es_trace_log"], test)
         self.hits = []
 
         try:
@@ -51,21 +53,21 @@ class Parser(object):
         return json.loads(str)
 
     @staticmethod
-    def diginto(array):
+    def dig(array):
         """
         Prend en paramètre un dict et retorune une python list de clef valeurs.
         [ {'a':'1'} , {'b':'2'} , {'c':'3'} , {'d':'4'} ]  
-        :param dict:
-        :return valus <list>:
+        :param array <dict>:
+        :return values <list>:
         """
         values = []
         for key in array.keys():
             if type(array[key]) is list:
                 for a in array[key]:
-                    values += Parser.diginto({key: a})
+                    values += Parser.dig({key: a})
                 pass
             elif type(array[key]) is dict:
-                values += Parser.diginto(array[key])
+                values += Parser.dig(array[key])
             else:
                 values.append({key: array[key]})
 
@@ -73,23 +75,30 @@ class Parser(object):
 
     @property
     def _now(self):
+        """ Helper pour les date courrante """
         return datetime.now().strftime("%Y-%m-%d")    
 
     def matchPattern(self, KeyValues, tpl=False):
-
+        """
+        Pour chaque fichiers present dans la configuration on test si la clef unique
+        est présente dans ce document. si oui, on retourne le nom de fichier correspondant. (None si le correspond à aucun fichier)
+        :param keyValues <list<Dict>> [ {'a':'1'} , {'b':'2'} etc... ]
+        :return filename <String> 
+        """
         for filename in self.conf.get["files"]:
             copy = list(KeyValues)
             matches = filter(lambda y: y.keys()[0] == self.conf.get["files"][filename]["pattern"], copy)
             # TODO: Trancher sur l'unicité du pattern
             if len(matches) > 0:
                 return filename
-        
-        #print filename
-        #print self.conf.get["files"][filename]["pattern"]
-        #print len(matches)
         return None
 
     def head(self, filename, df):
+        """
+        prend en entré un dataframe et retourne l'entete et le retourne
+        :param <pandas.Dataframe>:
+        :return headMap <pandas.Dataframe>:
+        """
         headMap = dict()
         for idx, k in enumerate(self.conf.get["files"][filename]["keys"]):
             headMap[k] = self.conf.get["files"][filename]["fields"][idx]
@@ -113,6 +122,8 @@ class Parser(object):
 
         :return:
         """
+        err_format = list() # json mal fomatés
+        err_pattern = 0     # pattern non reconnus
         dicts_containers = dict()
         for files in self.conf.get['files'].keys():
             dicts_containers[files] = []
@@ -121,12 +132,11 @@ class Parser(object):
             try:
                 dicts_hit = Parser.dump_string(hit[self.conf.mainKey])
             except ValueError as ve:
-                self.log.get.debug("La clef (( " + self.conf.mainKey +" )) ne présente pas un format json.")
-                self.log.get.debug(str(ve))
+                err_format.append(hit[self.conf.mainKey])
                 dicts_hit = {"error": "ValueError"}
             
-            cells_hit = Parser.diginto(dicts_hit)
-            cells_hit += Parser.diginto(hit)
+            cells_hit = Parser.dig(dicts_hit)
+            cells_hit += Parser.dig(hit)
             pattern = self.matchPattern(cells_hit)
 
             # trun [{'a':'1'}, {'b':'2'}, {'c':'3'}] into [{'a':'1'}]
@@ -135,6 +145,13 @@ class Parser(object):
             # turn [{'one': 1}, {'two': 2}] in {'one': 1, 'two': 2}
             row = {k: v for cell in cells_hit for k, v in cell.items()}
             if pattern is not None: dicts_containers[pattern].append(row)
+            if pattern is None: err_pattern +=1
+
+        if len(err_format) > 0:
+        	self.log.get.warning(" Pour %i docs, la clef { %s } ne présente pas un format json."%(len(err_format),self.conf.mainKey))
+
+        if err_pattern > 0:
+        	self.log.get.warning(" %i lignes ne correspondent a aucun fichier."%(err_pattern - len(err_format)))
 
         for d in dicts_containers.keys():
 

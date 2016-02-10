@@ -1,28 +1,42 @@
+#
 # configuration remplacable par les variables d'environnement
 #
-#
-es_host: ${TRC_ES_HOST}
-es_port: ${TRC_ES_PORT}
-es_index: ${TRC_ES_IDX}
-es_trace_log: ${TRC_LOG}
-es_trace_out: ${TRC_OUT}
-es_trace_date: "%Y-%m-%d_%H:%M:%S"
-es_trace_delibery: ${EMISSION}
+es_host: ${TRC_ES_HOST}  # host elasticsearch
+es_port: ${TRC_ES_PORT}  # port elasticsearch
+es_index: ${TRC_ES_IDX}  # indx de trace
+es_trace_log: ${TRC_LOG} # chemin complet vers les fichiers de logs
+es_trace_out: ${TRC_OUT} # préfixe des fichier de sotie ex= TRCBCC_(...).csv
+es_trace_date: "%Y-%m-%d_%H:%M:%S" # format date des champs date dans les csv
+es_trace_delibery: ${EMISSION}/trace # chemin complet vers les livrables
 #
 # configuration pour le parsing des fichiers
 #
+
+# clef principale, doit contenir des informations
+# de type sring au format json
+# '{"a": "1", "b": [b1,b2,b3], "c":{"c1":"1","c2":"2"}}'
 primary: information
 
 #
 # -- files:
 # -- -- nom du fichier:
-# -- -- -- type: type du fichier (pris en compte: dict regex)
-# -- -- -- match:
-# -- -- -- champ: champ du fichier sortant
-# -- 2 type
+# -- -- -- pattern: clef présente unique pour doc json de ce type de fichier
+# -- -- -- keys: champ du fichier sortant
+# -- -- -- -- key1
+# -- -- -- -- key2
+# -- -- -- -- key3
+# -- -- -- fields: nom apparant dans les entête csv
+# -- -- -- -- field1
+# -- -- -- -- field2 
+# -- -- -- -- field3 
+# -- -- nom du fichier2: etc ...
 #
 # Indiquer des fichiers sous files implique
 # la création d'un fichier <file>_BCC_<yyyy-MM-dd>.xlsx
+#
+# chaque fichier possède une clef unique => pattern 
+# pour reconnaitre les lignes de ce fichier
+# 
 files:
   requetes:
     pattern: query
@@ -62,15 +76,7 @@ files:
       - "Timestamp"
       - "Identifiant"
 
-
-  #information:
-    #type dict
-    #match infomation
-
-  #clic:
-    #type string
-    #match
-
+#/!\ ici les champs keys et fields doivent contenir le même nombre d'élément /!\
+#/!\ pour faire correspondre une clef à un nom de column placez les en même position/!\
+#/!\ ce la permet de renomer les entêtes des csv /!\
 test_varibale: ${APP}
-test_avec_plusde_variable: ${chemin}/vers/${un}/${dossier}
-test_variable_again: ${KYC_ES_TRACE_PARCER_LOG}
