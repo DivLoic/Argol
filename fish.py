@@ -1,6 +1,13 @@
-#!/Users/LoicMDIVAD/Lmdapp/products/anaconda/bin/python
+#!/bin/env python
 # coding: utf-8
 
+""" 
+Convertion of bash into fish profile.
+Author : Loic M. Divad
+Date : 12 December 2015
+Revised: 15 April 2016
+please see https://github.com/DivLoic/Argol
+""" 
 import os
 import sys
 
