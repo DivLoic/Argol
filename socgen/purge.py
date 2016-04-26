@@ -2,7 +2,8 @@
 
 """
  Author: Loic DIVAD
- Goal: ...
+ Goal: purger 
+ chaques ids
  Please, see also: ...
 """
 # imports
@@ -89,16 +90,48 @@ def es_count_docs(eshost, esindex, estype):
 
 def build_query(_id, source, default_size=50000):
 	"""
+		build_query(_id="1202", source="mysource", default_size=50000) build
+		a es doc for a bool query and return it as a string
+	params
+	----------
+		_id :string from the elasticsearch key Identifiant 
+		source :string from the elasticsearch key fichierSource
+	return
+	----------
+		:string body of the elasticsearch research for the following query
+		get all docs with key Identifiant: _id AND fichierSource: source
 	"""
-	doc = { 
-	 "size": default_size,
-	 "query": { "bool": { "must": []}}
-	}
-
+	doc = { "size": default_size, "query": { "bool": { "must": [] } } }
 	doc["query"]["bool"]["must"].append({"match": {"Identifiant": _id}})
 	doc["query"]["bool"]["must"].append({"match": {"fichierSource": source}})
 
 	return json.dumps(doc)
+
+def build_delete_ids(all_ids):
+	"""
+	param
+	----------
+		all_ids :dict of string _id from es like: 
+		["Ud9FNgm0Qt6HAXD3sv6vjg", "-02IGaCjRQyR4q_3BfDzCA"]
+	return
+	----------
+		:string body of the elasticsearch query used to delete all the 
+	"""
+	doc = {"query": {"constant_score": {"filter": {"terms": {"_id": [] }}}}}
+	doc["query"]["constant_score"]["filter"]["terms"]["_id"] = all_ids
+	return json.dumps(doc)
+
+def es_delete(eshost, esindex, estype, doc_body=""):
+	"""
+	param
+	----------
+	return
+	----------
+
+	"""
+	eslastisearch_queries = "%s/%s/%s/_search?size=%s"%(eshost,esindex,estype,essize)
+	res = HTTP.request("DELETE", eslastisearch_queries, doc_body=doc_body, headers=es_header())
+
 
 
 def es_docs(eshost, esindex, estype, essize=50000, skip=0):
@@ -106,9 +139,9 @@ def es_docs(eshost, esindex, estype, essize=50000, skip=0):
 	es_docs(eshost=http..., esindex=dkycibdr, estype=PP(M), essize=50000, skip=0)
 	params
 	----------
-		eshost :string: es http endpoint
-		esindex :string: name of the index
-		estype :string: type of es doc (PP/PM)
+		eshost :string es http endpoint
+		esindex :string name of the index
+		estype :string type of es doc (PP/PM)
 
 	return
 	----------
@@ -121,7 +154,7 @@ def es_docs(eshost, esindex, estype, essize=50000, skip=0):
 	try:
 		hits = datum["hits"]["hits"]
 	except KeyError:
-		print "[ERROR]: Erreur lors du requetage de l'index: %s"%esindex
+		log.error("Aucun hits n'a été retourné par l'index :%s"%esindex)
 
 	return map(lambda y : y["_source"], hits)
 
@@ -142,39 +175,30 @@ def es_shift_id(doc, eshost, esindex, estype, essize=50000, leave=8):
 	eslastisearch_queries = "%s/%s/%s/_search"%(eshost,esindex,estype)
 	res = HTTP.request("GET", eslastisearch_queries, body=doc, headers=es_header())
 	datum = json.loads(res.data)
-	datum = sorted(datum, key= lambda y: y["_source"]["timestamp"])
-	return map(lambda y: y["_id"], datum["hits"]["hits"])[:-leave]
+	datum = sorted(datum["hits"]["hits"], key= lambda y: y["_source"]["timestamp"])
+	return map(lambda y: y["_id"], datum)[:-leave]
 	
-	
-
 def uniqueDf(documents, fields=["Identifiant", "fichierSource", "timestamp"]):
 	"""
-	uniqueDf(documents=, fields=["Prenom", "Nom", "Identifiant"]) 
+	uniqueDf(documents=, fields=["Prenom", "Nom", "Identifiant"])
+	return en Empty DataFrame if document is an empty list 
 	params
 	----------
-		documents :List of python dict from ES
+		documents :list of python dict from ES
 
 	return
 	----------
-		pandas.DataFrame with unique couple of firstname, lastname
+		:pandas.DataFrame with unique couple of firstname, lastname
 	"""
-	#def valid(y):
-	#	for f in fields:
-	#		if f not in y.keys():
-	#			return False
-	#	return True
-
-	#documents = filter(valid, documents)
-
+	#  
+	if len(documents) == 0: return pd.DataFrame([])
 	df = pd.DataFrame(documents)[fields]
 	df = df.groupby(["Identifiant", "fichierSource"]).first()
-	#df = df.groupby(["Identifiant", "fichierSource"], axis=0).first()#.last()
 	return df
 
 
 
 if __name__ == "__main__":
-
 
 	# lookup env
 	testEnv()
@@ -195,19 +219,11 @@ if __name__ == "__main__":
 	log.info("Reccupération des documents entre [0-50000]")
 	people = es_docs(eshost=eshost, esindex=esidx, estype=options.estype, essize=50000, skip=0)
 		
-	# essize = es_count_docs(eshost, esidx, options.estype)
-	# print es_count_docs(eshost, esidx, "PP")
-	# print es_count_docs(eshost, esidx, "PM")
-	#
-	#
-	#
-
-	#print len(people)
 	log.info("Aggrégation de champs discriminants")
 	ids = uniqueDf(people).index.tolist()
 	for unique_id in ids:
 		log.info("Supression des documents pour le tuple : (%s, %s)."%unique_id)
 		es_consumer = build_query(unique_id[0], unique_id[1])
-		print es_consumer
-		print es_shift_id(doc=es_consumer, eshost=eshost, esindex=esidx, estype=options.estype, leave=2)#, leave=2)
+		_all_ids = es_shift_id(doc=es_consumer, eshost=eshost, esindex=esidx, estype=options.estype, leave=2)#, leave=2)
+		es_delete(eshost=eshost, esindex=esidx, estype=options.estype, doc_body=build_delete_ids(_all_ids))
 		break 
