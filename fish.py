@@ -5,7 +5,7 @@
 Convertion of bash into fish profile.
 Author : Loic M. Divad
 Date : 12 December 2015
-Revised: 15 April 2016
+Revised: 02 May 2016
 please see https://github.com/DivLoic/Argol
 """ 
 import os
@@ -31,25 +31,27 @@ def linePattern(cmd, line):
 # process
 
 if __name__ == '__main__':
-    FISHING_NET = []
+
     profile = os.path.abspath(os.environ['HOME'] + '/.bash_profile')
     fishfile = os.path.abspath(os.environ['HOME'] + '/.fish_profile')
 
     with open(profile, 'r') as bash:
-        for line in bash:
-            if linePattern('comment', line) or line == '\n' or isPS1(line):
-                continue
-            elif linePattern('export', line):
-                FISHING_NET.append(line.replace('export', 'set -x').replace('=', ' '))
-            elif linePattern('alias', line):
-                FISHING_NET.append(line.replace('=', ' '))
-            elif linePattern('PATH', line):
-                FISHING_NET.append(                     line.replace('export PATH=', 'set -gx PATH ')                     .replace(':$PATH', ' $PATH')                 )
-            else:
-                pass
-
-    with open(fishfile, 'w') as f:
-        for l in FISHING_NET:
-            f.write(l)
+        
+        with open(fishfile, 'w') as f:
+            
+            for line in bash:
+                if linePattern('comment', line) or line == '\n' or isPS1(line):
+                    continue
+                elif linePattern('export', line):
+                    f.write(line.replace('export', 'set -x').replace('=', ' '))
+                elif linePattern('alias', line):
+                    f.write(line.replace('=', ' '))
+                elif linePattern('PATH', line):
+                    f.write(
+                        line.replace('export PATH=', 'set -gx PATH ')
+                        .replace(':$PATH', ' $PATH')
+                    )
+                else:
+                    pass
 
     print 'fish export available at ~/.fish_profile.'
