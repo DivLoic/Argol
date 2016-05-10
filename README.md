@@ -10,15 +10,15 @@ You will find a similar project using the programming laguage Java: [Silva](http
   - Matplotlib 
 - ~~GraphLab~~
 - Bokeh
+- ml_metrics
 
 #### Editors:
 1. IntelliJ (Python plugin)
 2. Jupyter Notebook
 
 #### A Few projects:
-- [X] ES_TRACE
-- [X] MVS
-- [ ] Kaggle
+- [X] socgen
+- [X] Kaggle
 - [ ] Tensor
 
 #### About the project name
