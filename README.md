@@ -8,7 +8,7 @@ You will find a similar project using the programming laguage Java: [Silva](http
   - Scikit-Learn
   - Pandas
   - Matplotlib 
-- ~~GraphLab~~
+- GraphLab
 - Bokeh
 - ml_metrics
 
@@ -19,7 +19,7 @@ You will find a similar project using the programming laguage Java: [Silva](http
 #### A Few projects:
 - [X] socgen
 - [X] Kaggle
-- [ ] Tensor
+- [ ] ~~Tensor~~
 
 #### About the project name
->Argol (ペルセウス座のアルゴル, Peruseusu za no Arugoru) is a fictional character from [Saint-Seiya](https://en.wikipedia.org/wiki/Saint_Seiya)
+>Argol (ペルセウス座のアルゴル), Peruseusu za no Arugoru) is a fictional character from [Saint-Seiya](https://en.wikipedia.org/wiki/Saint_Seiya)
