@@ -51,7 +51,5 @@ if __name__ == '__main__':
                         line.replace('export PATH=', 'set -gx PATH ')
                         .replace(':$PATH', ' $PATH')
                     )
-                else:
-                    pass
 
     print 'fish export available at ~/.fish_profile.'
